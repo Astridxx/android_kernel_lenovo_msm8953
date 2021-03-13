@@ -342,6 +342,11 @@ config PM_SYNC_BEFORE_SUSPEND
 	depends on SUSPEND
 	default y
 
+config BOEFFLA_WL_BLOCKER
+	bool "Boeffla generic wakelock blocker driver"
+	depends on PM
+	default N
+
 config QUICK_WAKEUP
 	bool "Quick wakeup"
 	depends on SUSPEND
