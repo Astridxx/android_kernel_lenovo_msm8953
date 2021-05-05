@@ -1479,7 +1479,7 @@ int wlan_logging_sock_activate_svc(int log_fe_to_console, int num_buf,
 	bool failure = FALSE;
 	struct log_msg *temp;
 
-	pr_info("%s: Initalizing FEConsoleLog = %d NumBuff = %d\n",
+	pr_debug("%s: Initalizing FEConsoleLog = %d NumBuff = %d\n",
 			__func__, log_fe_to_console, num_buf);
 
 	gapp_pid = INVALID_PID;
@@ -1510,12 +1510,12 @@ int wlan_logging_sock_activate_svc(int log_fe_to_console, int num_buf,
 	spin_unlock_irqrestore(&gwlan_logging.spin_lock, irq_flag);
 	if(pkt_stats_enabled)
 	{
-		pr_info("%s: Initalizing Pkt stats pkt_stats_buff = %d\n",
+		pr_debug("%s: Initalizing Pkt stats pkt_stats_buff = %d\n",
 			__func__, pkt_stats_buff);
 		pkt_stats_buffers = (struct pkt_stats_msg *) vos_mem_malloc(
 			 pkt_stats_buff * sizeof(struct pkt_stats_msg));
 		if (!pkt_stats_buffers) {
-			pr_err("%s: Could not allocate memory for Pkt stats\n", __func__);
+			pr_debug("%s: Could not allocate memory for Pkt stats\n", __func__);
 			failure = TRUE;
 			goto err;
 		}
@@ -1884,7 +1884,7 @@ int wlan_queue_logpkt_for_app(vos_pkt_t *pPacket, uint32 pkt_type)
 	VOS_STATUS status = VOS_STATUS_E_FAILURE;
 
 	if (pPacket == NULL) {
-		pr_err("%s: Null param", __func__);
+		pr_debug("%s: Null param", __func__);
 		VOS_ASSERT(0);
 		return VOS_STATUS_E_FAILURE;
 	}
@@ -1936,7 +1936,7 @@ void wlan_process_done_indication(uint8 type, uint32 reason_code)
 
 	if ((type == WLAN_FW_LOGS) && reason_code &&
 				 vos_isFatalEventEnabled() &&
-				 vos_is_wlan_logging_enabled())
+				 vos_is_wlan_logging_enabled() && reason_code != 4105)
 	{
 		if(wlan_is_log_report_in_progress() == TRUE)
 		{
@@ -1962,7 +1962,7 @@ void wlan_process_done_indication(uint8 type, uint32 reason_code)
 				spin_unlock_irqrestore(
 					&gwlan_logging.bug_report_lock,
 					flags);
-				pr_info("%s: Ignoring Fatal event from firmware for reason %d\n",
+				pr_debug("%s: Ignoring Fatal event from firmware for reason %d\n",
 					__func__, reason_code);
 				return;
 			}
@@ -2035,7 +2035,7 @@ int wlan_fwr_mem_dump_buffer_allocation(void)
 	  or if feature not supported just report to the user */
 	if(gwlan_logging.fw_mem_dump_ctx.fw_dump_max_size <= 0)
 	{
-	   pr_err("%s: fw_mem_dump_req not supported by firmware", __func__);
+	   pr_debug("%s: fw_mem_dump_req not supported by firmware", __func__);
 	   return -EFAULT;
 	}
 	gwlan_logging.fw_mem_dump_ctx.fw_dump_start_loc =
@@ -2043,7 +2043,7 @@ int wlan_fwr_mem_dump_buffer_allocation(void)
 	gwlan_logging.fw_mem_dump_ctx.fw_dump_current_loc = gwlan_logging.fw_mem_dump_ctx.fw_dump_start_loc;
 	if(NULL == gwlan_logging.fw_mem_dump_ctx.fw_dump_start_loc)
 	{
-		pr_err("%s: fw_mem_dump_req alloc failed for size %d bytes", __func__,gwlan_logging.fw_mem_dump_ctx.fw_dump_max_size);
+		pr_debug("%s: fw_mem_dump_req alloc failed for size %d bytes", __func__,gwlan_logging.fw_mem_dump_ctx.fw_dump_max_size);
 		return -ENOMEM;
 	}
 	vos_mem_zero(gwlan_logging.fw_mem_dump_ctx.fw_dump_start_loc,gwlan_logging.fw_mem_dump_ctx.fw_dump_max_size);
@@ -2116,7 +2116,7 @@ size_t wlan_fwr_mem_dump_fsread_handler(char __user *buf,
 		count = gwlan_logging.fw_mem_dump_ctx.fw_dump_max_size - *pos;
 	}
 	if (copy_to_user(buf, gwlan_logging.fw_mem_dump_ctx.fw_dump_start_loc, count)) {
-		pr_err("%s copy to user space failed",__func__);
+		pr_debug("%s copy to user space failed",__func__);
 		return 0;
 	}
 	/* offset(pos) should be updated here based on the copy done*/
