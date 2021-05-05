@@ -1,3 +1,4 @@
+
 config SUSPEND
 	bool "Suspend to RAM and standby"
 	depends on ARCH_SUSPEND_POSSIBLE
@@ -26,6 +27,19 @@ config WAKELOCK
 	  they need it.
 
 	  Say Y if you are running an android userspace.
+
+config POWERSUSPEND
+	bool "Power suspend"
+	default y
+	---help---
+	  Call early suspend handlers when the user requested sleep state
+	  changes.
+
+config POWERSUSPEND_DEBUG
+	bool "Powersuspend driver debugging code"
+	depends on POWERSUSPEND
+	help
+	  Output debugging info in dmesg [POWERSUSPEND] (Yank555.lu)
 
 config HIBERNATE_CALLBACKS
 	bool
